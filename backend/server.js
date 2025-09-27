@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import User from "./user.js"; // correct path
+import Session from "./sessions.js";
 
 dotenv.config();
 
@@ -20,18 +21,38 @@ app.get("/", async(req, res) => {
 })
 
 // Example route to add a user
-app.get("/add-user", async (req, res) => {
+app.post("/add-user", async (req, res) => {
+  const { name, email, skills_offered, skills_requested } = req.body;
+
+  console.log("Request Body:", req.body);
+
   try {
-    const newUser = new User({
-      name: "Sam",
-      email: "sam@email.com",
-      skills_offered: ["JavaScript", "React"],
-      skills_requested: ["Node.js"]
-    });
+    const newUser = new User({ name, email, skills_offered, skills_requested });
     await newUser.save();
-    res.send("User added!");
+    res.status(201).json({ message: "User added!", user: newUser });
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/add-session", async (req, res) => {
+  const { teacher_id, skill, capacity, video_room_url, status } = req.body;
+
+  console.log("Request Body:", req.body);
+
+  try {
+    const newSession = new Session({
+      teacher_id,
+      skill,
+      capacity,
+      video_room_url,
+      status
+    });
+
+    await newSession.save();
+    res.status(201).json({ message: "Session created!", session: newSession });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
