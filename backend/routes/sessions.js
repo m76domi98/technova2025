@@ -1,11 +1,11 @@
 import express from "express";
 import Session from "../models/session.js";
-import { OpenAI } from "openai";
+//import { OpenAI } from "openai";
 import twilio from "twilio";
 
 const router = express.Router();
 const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
-const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
+//const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
 
 // Create session + Twilio room
 router.post("/add", async (req, res) => {
@@ -38,10 +38,11 @@ router.post("/end/:id", async (req, res) => {
     session.transcript = transcript;
 
     // Call Gemini/OpenAI for summary
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "system", content: "Summarize this tutoring session." }, { role: "user", content: transcript }]
-    });
+    // const completion = await openai.chat.completions.create({
+    //   model: "gpt-4o-mini",
+    //   messages: [{ role: "system", content: "Summarize this tutoring session." }, { role: "user", content: transcript }]
+    // });
+    const completion = {choices: [{message: {content: "This is a placeholder summary."}}]}; // Placeholder until API key is set up
 
     session.ai_summary = completion.choices[0].message.content;
     await session.save();
@@ -51,3 +52,4 @@ router.post("/end/:id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+export default router;
