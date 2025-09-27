@@ -10,6 +10,11 @@ app.use(express.json());
 
 const supabaseUrl = process.env.SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY
+console.log("supabaseUrl: " + supabaseUrl)
+console.log("supabaseKey: " + supabaseKey)
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error("Missing Supabase environment variables");
+}
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 // health check
