@@ -27,10 +27,9 @@ router.get("/all-user", async (req, res) => {
 });
 
 //get by name
-router.get("/name/:name", async(req, res) => {
-  const {name} = req.params; 
+router.get("/:id", async(req, res) => {
   try {
-    const user = await User.findOne({name: name});
+    const user = await User.findById(req.params.id);
 
     if (!user) {
       console.log("User not found");
@@ -80,11 +79,11 @@ router.get("/offered/:skills_offered", async(req, res) => {
 });
 
 //delete user by username 
-router.delete("/delete/:name", async(req, res) => {
-  const {name} = req.params; 
+router.delete("/delete/:id", async(req, res) => {
+  const {id} = req.params; 
 
   try {
-    const deletedUser = await User.findOneAndDelete({name}); 
+    const deletedUser = await User.findOneAndDelete({id}); 
 
     if (!deletedUser){
       return res.status(400).json({error: "User not found"});
@@ -97,11 +96,11 @@ router.delete("/delete/:name", async(req, res) => {
 });
 
 //update user by username 
-router.patch("/update/:name", async(req, res) => {
-  const{name} = req.params; 
+router.patch("/update/:id", async(req, res) => {
+  const{id} = req.params; 
   const updates = req.body; 
 
-  if (!name) return res.status(400).json({ error: "name is required" });
+  if (!id) return res.status(400).json({ error: "id is required" });
 
   if (!updates || Object.keys(updates).length === 0) {
     return res.status(400).json({ error: "No update data provided" });
@@ -109,13 +108,13 @@ router.patch("/update/:name", async(req, res) => {
 
   try {
     const updatedUser = await User.findOneAndUpdate(
-      {name}, 
+      {id}, 
       updates, 
       {new: true}
     );
 
     if (!updatedUser){
-      return res.status(400).json({error: "no user with this name"});
+      return res.status(400).json({error: "no user with this id"});
     }
 
     res.json({message: "user updated successfully", user: updatedUser});
