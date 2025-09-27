@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 
 dotenv.config();
 const app = express();
+const PORT = 4000;
 app.use(cors());
 app.use(express.json());
 
@@ -16,6 +17,11 @@ if (!supabaseUrl || !supabaseKey) {
   throw new Error("Missing Supabase environment variables");
 }
 const supabase = createClient(supabaseUrl, supabaseKey)
+
+// Basic route
+app.get("/", (req, res) => {
+  res.send("Hello, Backend is running!");
+});
 
 // health check
 app.get("/health", (req, res) => res.send("Backend running ✅"));
@@ -30,4 +36,6 @@ app.post("/users", async (req, res) => {
   res.json(data);
 });
 
-app.listen(4000, () => console.log("Backend running on port 4000"));
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
