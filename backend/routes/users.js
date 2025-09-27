@@ -79,12 +79,11 @@ router.get("/offered/:skills_offered", async(req, res) => {
 });
 
 //delete user by username 
-router.delete("/delete/:id", async(req, res) => {
-  const {id} = req.params; 
+router.delete("/delete", async(req, res) => {
+  const {id} = req.body; 
 
   try {
-    const deletedUser = await User.findOneAndDelete({id}); 
-
+    const deletedUser = await User.findByIdAndDelete(id); // <-- FIX
     if (!deletedUser){
       return res.status(400).json({error: "User not found"});
     }
@@ -107,7 +106,7 @@ router.patch("/update/:id", async(req, res) => {
   }
 
   try {
-    const updatedUser = await User.findOneAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
       {id}, 
       updates, 
       {new: true}
