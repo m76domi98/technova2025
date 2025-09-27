@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import User from "./user.js"; // correct path
 import Session from "./sessions.js";
+import SessionParticipant from "./session_participants.js";
 
 dotenv.config();
 
@@ -51,6 +52,21 @@ app.post("/add-session", async (req, res) => {
 
     await newSession.save();
     res.status(201).json({ message: "Session created!", session: newSession });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Add a participant to a session
+app.post("/add-participant", async (req, res) => {
+  const { session_id, user_id, role } = req.body;
+
+  console.log("Request Body:", req.body);
+
+  try {
+    const newParticipant = new SessionParticipant({ session_id, user_id, role });
+    await newParticipant.save();
+    res.status(201).json({ message: "Participant added!", participant: newParticipant });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
