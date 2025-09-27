@@ -16,7 +16,8 @@
     "express": "^5.1.0",
     "mongodb": "^6.20.0",
     "mongoose": "^8.18.2",
-    "supabase": "^2.45.5"
+    "supabase": "^2.45.5",
+    "twilio": "^5.10.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
