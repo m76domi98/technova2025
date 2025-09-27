@@ -1,5 +1,6 @@
 import express from "express";
 import User from "../models/user.js";
+import mongoose from "mongoose";
 
 const router = express.Router();
 
@@ -22,6 +23,104 @@ router.get("/all-user", async (req, res) => {
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+//get by name
+router.get("/name/:name", async(req, res) => {
+  const {name} = req.params; 
+  try {
+    const user = await User.findOne({name: name});
+
+    if (!user) {
+      console.log("User not found");
+      return null;
+    }
+    console.log("User found:", user);
+    res.json(user);
+  }catch (err){
+    res.status(500).json({error: err.message});
+  }
+});
+
+//get by skills requested 
+router.get("/requested/:skills_requested", async(req, res) => {
+  const {skills_requested} = req.params; 
+
+  try {
+    const user = await User.findOne({skills_requested : skills_requested});
+
+    if (!user) {
+      console.log("User not found");
+      return null;
+    }
+    console.log("User found:", user);
+    res.json(user);
+  }catch (err){
+    res.status(500).json({error: err.message});
+  }
+});
+
+//get by skills offered 
+router.get("/offered/:skills_offered", async(req, res) => {
+  const {skills_offered} = req.params; 
+
+  try {
+    const user = await User.find({skills_offered : skills_offered});
+
+    if (!user) {
+      console.log("User not found");
+      return null;
+    }
+    console.log("User found:", user);
+    res.json(user);
+  }catch (err){
+    res.status(500).json({error: err.message}); 
+  }
+});
+
+//delete user by username 
+router.delete("/delete/:name", async(req, res) => {
+  const {name} = req.params; 
+
+  try {
+    const deletedUser = await User.findOneAndDelete({name}); 
+
+    if (!deletedUser){
+      return res.status(400).json({error: "User not found"});
+    }
+
+    res.json({message: "user deleted successfully", user: deletedUser});
+  }catch (err){
+    res.status(500).json({error: err.message});
+  }
+});
+
+//update user by username 
+router.patch("/update/:name", async(req, res) => {
+  const{name} = req.params; 
+  const updates = req.body; 
+
+  if (!name) return res.status(400).json({ error: "name is required" });
+
+  if (!updates || Object.keys(updates).length === 0) {
+    return res.status(400).json({ error: "No update data provided" });
+  }
+
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      {name}, 
+      updates, 
+      {new: true}
+    );
+
+    if (!updatedUser){
+      return res.status(400).json({error: "no user with this name"});
+    }
+
+    res.json({message: "user updated successfully", user: updatedUser});
+  }catch(err){
+    res.status(500).json({error: err.message});
   }
 });
 

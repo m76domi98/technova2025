@@ -30,4 +30,29 @@ router.get("/find-session", async (req, res) => {
   }
 });
 
+//get sessions by skills offered 
+router.get("/:skills_offered", async (req, res) => {
+  const {skills_offered} = req.params; 
+  try {
+    const sessions = await Session.find({skills_offered : skill});
+    res.json(sessions);
+
+
+  }catch (err){
+    res.status(500).json({error: err.message});
+  }
+});
+
+
+//get sessions by all sessions available 
+router.get("/all", async (req, res) => {
+  try {
+    const sessions = await Session.find({}, {title: 1, date: 1, skills: 1});
+    res.json(sessions);
+  } catch (error) {
+    res.status(500).json({error:err.message});
+  }
+});
+
+
 export default router;
