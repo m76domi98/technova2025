@@ -1,4 +1,3 @@
-// session_participant.js
 import mongoose from "mongoose";
 const { Schema } = mongoose;
 
@@ -9,5 +8,4 @@ const sessionParticipantSchema = new Schema({
   joined_at: { type: Date, default: Date.now }
 });
 
-const SessionParticipant = mongoose.model("SessionParticipant", sessionParticipantSchema);
-export default SessionParticipant;
+export default mongoose.model("SessionParticipant", sessionParticipantSchema);
