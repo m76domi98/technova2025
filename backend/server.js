@@ -10,7 +10,6 @@ import userRoutes from './routes/users.js';
 import sessionRoutes from './routes/sessions.js';
 import participantRoutes from './routes/participants.js';
 import messageRoutes from './routes/messages.js';
-import matchRoutes from './routes/matches.js';
 import intelligentMatchRoutes from './routes/match.js';
 
 // Load environment variables from .env file
@@ -59,7 +58,6 @@ app.use('/api/users', userRoutes); // Contains /add-user, /login, and all /searc
 app.use('/api/sessions', authMiddleware, sessionRoutes);
 app.use('/api/participants', authMiddleware, participantRoutes);
 app.use('/api/messages', authMiddleware, messageRoutes);
-app.use('/api/matches', authMiddleware, matchRoutes);
 app.use('/api/match', authMiddleware, intelligentMatchRoutes);
 
 // Basic Welcome Route
