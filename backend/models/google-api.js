@@ -20,8 +20,8 @@ async function createVectorIndex(DocumentModel, indexName) {
       definition: {
         fields: [
           {
-            path: 'vector', // 👈 This must match the field in your schema
-            numDimensions: 768, // 👈 Must match your embedding model's dimension (e.g., 768 for Gemini, 1536 for older OpenAI)
+            path: 'vector', //  match the field in your schema
+            numDimensions: 768, //  match your embedding model's dimension (e.g., 768 for Gemini, 1536 for older OpenAI)
             type: 'vector',
             similarity: 'cosine', // or 'euclidean', or 'dotProduct'
           },
