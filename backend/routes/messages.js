@@ -4,9 +4,20 @@ import Message from "../models/message.js";
 const router = express.Router();
 
 router.post("/send", async (req, res) => {
-  const msg = new Message(req.body);
-  await msg.save();
-  res.json(msg);
+  try {
+    const {sender_id, text} = req.body; 
+
+    if (!text || !sender_id){
+      return res.status(400).json({error: "missing required fields"});
+    }
+
+    const message = new Message({sender_id, text});
+    await message.save();
+
+    res.json({message: "message sent successfully"});
+  }catch(err){
+    res.status(500).json({error: err.message});
+  }
 });
 
 router.get("/session/:sessionId", async (req, res) => {
