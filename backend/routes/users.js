@@ -108,7 +108,7 @@ router.patch("/update/:id", async(req, res) => {
 
   try {
     const updatedUser = await User.findByIdAndUpdate(
-      {id}, 
+      (id), 
       updates, 
       {new: true}
     );
