@@ -1,49 +1,126 @@
 import express from "express";
-import jwt from "jsonwebtoken";
 import User from "../models/user.js";
+import mongoose from "mongoose";
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
-// Register user
+// Create user
 router.post("/add-user", async (req, res) => {
   try {
-    const user = new User(req.body);
-    await user.save();
-    res.json(user);
+    const { name, email, skills_offered, skills_requested } = req.body;
+    const newUser = new User({ name, email, skills_offered, skills_requested });
+    await newUser.save();
+    res.status(201).json(newUser);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Login
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  if (!user || !(await user.comparePassword(password))) {
-    return res.status(401).json({ error: "Invalid credentials" });
+// Get all users
+router.get("/all-user", async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-  const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1d" });
-  res.json({ token, user });
 });
 
-// Search by name
-router.get("/search/name/:name", async (req, res) => {
-  const regex = new RegExp(req.params.name, "i");
-  const users = await User.find({ name: regex });
-  res.json(users);
+//get by name
+router.get("/:id", async(req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      console.log("User not found");
+      return null;
+    }
+    console.log("User found:", user);
+    res.json(user);
+  }catch (err){
+    res.status(500).json({error: err.message});
+  }
 });
 
-// Search by offered skill
-router.get("/search/offered/:skill", async (req, res) => {
-  const users = await User.find({ skills_offered: req.params.skill });
-  res.json(users);
+//get by skills requested 
+router.get("/requested/:skills_requested", async(req, res) => {
+  const {skills_requested} = req.params; 
+
+  try {
+    const user = await User.findOne({skills_requested : skills_requested});
+
+    if (!user) {
+      console.log("User not found");
+      return null;
+    }
+    console.log("User found:", user);
+    res.json(user);
+  }catch (err){
+    res.status(500).json({error: err.message});
+  }
 });
 
-// Search by requested skill
-router.get("/search/requested/:skill", async (req, res) => {
-  const users = await User.find({ skills_requested: req.params.skill });
-  res.json(users);
+//get by skills offered 
+router.get("/offered/:skills_offered", async(req, res) => {
+  const {skills_offered} = req.params; 
+
+  try {
+    const user = await User.find({skills_offered : skills_offered});
+
+    if (!user) {
+      console.log("User not found");
+      return null;
+    }
+    console.log("User found:", user);
+    res.json(user);
+  }catch (err){
+    res.status(500).json({error: err.message}); 
+  }
+});
+
+//delete user by username 
+router.delete("/delete/:id", async(req, res) => {
+  const {id} = req.params; 
+
+  try {
+    const deletedUser = await User.findByIdAndDelete({id}); 
+
+    if (!deletedUser){
+      return res.status(400).json({error: "User not found"});
+    }
+
+    res.json({message: "user deleted successfully", user: deletedUser});
+  }catch (err){
+    res.status(500).json({error: err.message});
+  }
+});
+
+//update user by username 
+router.patch("/update/:id", async(req, res) => {
+  const{id} = req.params; 
+  const updates = req.body; 
+
+  if (!id) return res.status(400).json({ error: "id is required" });
+
+  if (!updates || Object.keys(updates).length === 0) {
+    return res.status(400).json({ error: "No update data provided" });
+  }
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      {id}, 
+      updates, 
+      {new: true}
+    );
+
+    if (!updatedUser){
+      return res.status(400).json({error: "no user with this id"});
+    }
+
+    res.json({message: "user updated successfully", user: updatedUser});
+  }catch(err){
+    res.status(500).json({error: err.message});
+  }
 });
 
 export default router;
