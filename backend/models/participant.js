@@ -1,11 +1,10 @@
 import mongoose from "mongoose";
-const { Schema } = mongoose;
 
-const sessionParticipantSchema = new Schema({
-  session_id: { type: Schema.Types.ObjectId, ref: "Session", required: true },
-  user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  role: { type: String, enum: ["teacher", "learner"], required: true },
+const ParticipantSchema = new mongoose.Schema({
+  session_id: { type: mongoose.Schema.Types.ObjectId, ref: "Session", required: true },
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  role: { type: String, enum: ["teacher", "student"], default: "student" },
   joined_at: { type: Date, default: Date.now }
 });
 
-export default mongoose.model("SessionParticipant", sessionParticipantSchema);
+export default mongoose.model("Participant", ParticipantSchema);

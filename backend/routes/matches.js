@@ -1,23 +1,19 @@
 import express from "express";
-import User from "../models/user.js";
+import Match from "../models/match.js";
 
 const router = express.Router();
 
 // Find matches for a user
 router.get("/:userId", async (req, res) => {
-  try {
-    const user = await User.findById(req.params.userId);
-    if (!user) return res.status(404).json({ error: "User not found" });
+  const matches = await Match.find({ user_id: req.params.userId });
+  res.json(matches);
+});
 
-    const matches = await User.find({
-      skills_offered: { $in: user.skills_requested },
-      _id: { $ne: user._id } // exclude self
-    });
-
-    res.json({ user, possibleTeachers: matches });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+router.post("/swipe/:userId", async (req, res) => {
+  const { matched_user_id, status } = req.body;
+  const match = new Match({ user_id: req.params.userId, matched_user_id, status });
+  await match.save();
+  res.json(match);
 });
 
 export default router;

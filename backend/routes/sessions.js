@@ -1,64 +1,55 @@
 import express from "express";
 import Session from "../models/session.js";
-import User from "../models/user.js";
+//import { OpenAI } from "openai";
+import twilio from "twilio";
 
 const router = express.Router();
+const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
+//const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
 
-// Create session
-router.post("/add-session", async (req, res) => {
+// Create session + Twilio room
+router.post("/add", async (req, res) => {
   try {
-    const { teacher_id, skill, capacity, video_room_url, scheduled_at } = req.body;
+    const { teacher_id, skill, capacity } = req.body;
+    const room = await client.video.rooms.create({ uniqueName: `room-${Date.now()}` });
 
-    const teacher = await User.findById(teacher_id);
-    if (!teacher) return res.status(404).json({ error: "Teacher not found" });
+    const session = new Session({
+      teacher_id,
+      skill,
+      capacity,
+      twilio_room_sid: room.sid,
+      video_room_url: `https://video.twilio.com/rooms/${room.sid}`
+    });
 
-    const newSession = new Session({ teacher_id, skill, capacity, video_room_url, scheduled_at });
-    await newSession.save();
-    res.status(201).json(newSession);
+    await session.save();
+    res.json(session);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// End session + generate summary
+router.post("/end/:id", async (req, res) => {
+  try {
+    const session = await Session.findById(req.params.id);
+    if (!session) return res.status(404).json({ error: "Session not found" });
+
+    const { transcript } = req.body;
+    session.transcript = transcript;
+
+    // Call Gemini/OpenAI for summary
+    // const completion = await openai.chat.completions.create({
+    //   model: "gpt-4o-mini",
+    //   messages: [{ role: "system", content: "Summarize this tutoring session." }, { role: "user", content: transcript }]
+    // });
+    const completion = {choices: [{message: {content: "This is a placeholder summary."}}]}; // Placeholder until API key is set up
+
+    session.ai_summary = completion.choices[0].message.content;
+    await session.save();
+
+    res.json({ summary: session.ai_summary });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
-// Get all sessions (with teacher info)
-router.get("/find-session", async (req, res) => {
-  try {
-    const sessions = await Session.find().populate("teacher_id");
-    res.json(sessions);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-//get sessions by skills offered 
-router.get("/skils-offered/:skills_offered", async (req, res) => {
-  const {skills_offered} = req.params; 
-  try {
-    const sessions = await Session.find({skills_offered : skill});
-    res.json(sessions);
-
-
-  }catch (err){
-    res.status(500).json({error: err.message});
-  }
-});
-
-
-//get sessions by all sessions available 
-router.get("/all", async (req, res) => {
-  try {
-
-    const sessions = await Session.find();
-
-    if (!sessions){
-      res.json("no sessions found");
-    }
-
-    res.json(sessions);
-  } catch (error) {
-    res.status(500).json({error:err.message});
-  }
-});
-
-
 export default router;
