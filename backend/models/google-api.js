@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Assume your Mongoose Model (e.g., DocumentModel) is defined and imported
 // const DocumentModel = mongoose.model('Document'); 
 
 async function createVectorIndex(DocumentModel, indexName) {
